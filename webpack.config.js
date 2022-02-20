@@ -17,7 +17,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      vue$: "vue/dist/vue.common.dev",
+      vue$: "vue/dist/vue.common.prod",
     },
   },
 };
