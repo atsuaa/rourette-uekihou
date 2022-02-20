@@ -1,15 +1,8 @@
-// import Vue from 'vue'
-// import App from './App.vue'
-
-// Vue.config.productionTip = false
-
-// new Vue({
-//   render: h => h(App),
-// }).$mount('#app')
-
 "use strict";
-import "@/assets/main.css";
-import Vue from "vue/dist/vue.common";
+import "@fontsource/roboto";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./main.css";
+import Vue from "vue";
 const SITUATION_FIRST = 0;
 const SITUATION_WIN_ONLY = 1;
 const SITUATION_LOSE_RECENT = 2;
