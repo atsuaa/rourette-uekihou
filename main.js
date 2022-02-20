@@ -23,13 +23,16 @@ var app = new Vue({
     bet: null,
     turn: 0,
     turnInTerm: 0,
+    offsetBenefitInTerm: 0,
     total: 0,
     loss: 0,
     situation: SITUATION_FIRST,
     resultStack: [],
     result: null,
+    plusMinus: null,
     plusBet: 2,
     nextBet: null,
+    assembleSpliced: false,
   },
   computed: {
     d_nextBet: function () {
@@ -95,14 +98,17 @@ var app = new Vue({
       this.turn++;
       this.turnInTerm++;
       this.bet = bet;
+      this.assembleSpliced = false;
     },
     runResultReceiver: function (result) {
       if (result !== WIN && result !== LOSE) {
         throw "invalid result str";
       }
       this.setResult(result);
+      this.setPlusMinus();
       this.stackResultSet();
       this.setSituation();
+      this.countOffsetBenefitInTerm();
       this.countLoss();
       this.assembleResultSet();
       this.setPlusBet();
@@ -114,10 +120,14 @@ var app = new Vue({
     setResult: function (result) {
       this.result = result;
     },
+    setPlusMinus: function () {
+      this.plusMinus = this.result === WIN ? this.bet : -this.bet * 2;
+    },
     stackResultSet: function () {
       this.resultStack.push({
         bet: this.bet,
         result: this.result,
+        plusMinus: this.plusMinus,
         loss: null,
       });
     },
@@ -128,11 +138,12 @@ var app = new Vue({
       }
       if (this.situation === SITUATION_LOSE_WIN_WIN_RECENT) {
         this.resultStack.splice(-3);
+        this.assembleSpliced = true;
         return;
       }
     },
     countLoss: function () {
-      this.setLoss(this.result === WIN ? this.bet : -this.bet * 2);
+      this.setLoss(this.plusMinus);
       let result = this.resultStack.pop();
       result.loss = this.loss;
       this.resultStack.push(result);
@@ -142,6 +153,15 @@ var app = new Vue({
     },
     setSituation: function () {
       this.situation = this.d_situation;
+    },
+    countOffsetBenefitInTerm: function () {
+      if (this.situation === SITUATION_LOSE_WIN_WIN_RECENT) {
+        this.offsetBenefitInTerm =
+          this.offsetBenefitInTerm +
+          this.resultStack.slice(-3, -1)[0].plusMinus +
+          this.resultStack.slice(-2, -1)[0].plusMinus +
+          this.resultStack.slice(-1)[0].plusMinus;
+      }
     },
     setNextBet: function () {
       this.nextBet = this.d_nextBet;
@@ -191,7 +211,14 @@ var app = new Vue({
       // if (this.turnInTerm % 5 === 0) {
       //   this.plusBet = this.plusBet < 4 ? this.plusBet + 1 : 5;
       // }
-      let plusBet = Math.floor(this.resultStack.slice(-1)[0].bet / 5) + 1;
+      console.log(this.nextBet);
+      console.log(this.assembleSpliced);
+      let plusBet;
+      if (this.assembleSpliced) {
+        plusBet = Math.floor((this.resultStack.slice(-1)[0].bet - 1) / 5) + 1;
+      } else {
+        plusBet = Math.floor((this.nextBet - 1) / 5) + 1;
+      }
       this.plusBet = plusBet < 5 ? plusBet : 5;
     },
   },

@@ -37,8 +37,10 @@
               total: <span class="text-primary font-lg">{{ total }}</span>
             </li>
             <li class="list-group-item small text-muted">
-              plusBet: {{ plusBet }} turnInTerm: {{ turnInTerm }} turn: {{ turn
-              }}
+              <span>plusBet: {{ plusBet }}</span>
+              <span>turnInT: {{ turnInTerm }}</span>
+              <span>turn: {{ turn}}</span>
+              <span>B: {{ offsetBenefitInTerm }}</span>
             </li>
           </ul>
           <div class="card-body">
@@ -72,6 +74,7 @@
               <th scope="col">#</th>
               <th scope="col">bet</th>
               <th scope="col">result</th>
+              <th scope="col">plusMinus</th>
               <th scope="col">loss</th>
             </tr>
           </thead>
@@ -87,6 +90,11 @@
                 :class="[resultSet.result === 'w' ? 'text-info' : 'text-danger']"
               >
                 {{ dispResultText(resultSet.result) }}
+              </td>
+              <td
+                :class="[resultSet.result === 'w' ? 'text-info' : 'text-danger']"
+              >
+                {{ resultSet.plusMinus }}
               </td>
               <td>{{ resultSet.loss }}</td>
             </tr>
