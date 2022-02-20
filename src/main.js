@@ -1,4 +1,8 @@
 "use strict";
+import "@fontsource/roboto";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./main.css";
+import Vue from "vue";
 const SITUATION_FIRST = 0;
 const SITUATION_WIN_ONLY = 1;
 const SITUATION_LOSE_RECENT = 2;
@@ -16,7 +20,7 @@ const countUpLogic = {
   },
 };
 
-var app = new Vue({
+new Vue({
   el: "#app",
   data: {
     initialBet: null,
