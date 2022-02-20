@@ -131,26 +131,6 @@ var app = new Vue({
         loss: null,
       });
     },
-    assembleResultSet: function () {
-      if (this.situation === SITUATION_WIN_ONLY) {
-        this.resultStack = [];
-        return;
-      }
-      if (this.situation === SITUATION_LOSE_WIN_WIN_RECENT) {
-        this.resultStack.splice(-3);
-        this.assembleSpliced = true;
-        return;
-      }
-    },
-    countLoss: function () {
-      this.setLoss(this.plusMinus);
-      let result = this.resultStack.pop();
-      result.loss = this.loss;
-      this.resultStack.push(result);
-    },
-    setLoss: function (price) {
-      this.loss += price;
-    },
     setSituation: function () {
       this.situation = this.d_situation;
     },
@@ -162,6 +142,41 @@ var app = new Vue({
           this.resultStack.slice(-2, -1)[0].plusMinus +
           this.resultStack.slice(-1)[0].plusMinus;
       }
+    },
+    countLoss: function () {
+      this.setLoss(this.plusMinus);
+      let result = this.resultStack.pop();
+      result.loss = this.loss;
+      this.resultStack.push(result);
+    },
+    setLoss: function (price) {
+      this.loss += price;
+    },
+    assembleResultSet: function () {
+      if (this.situation === SITUATION_WIN_ONLY) {
+        this.resultStack = [];
+        return;
+      }
+      if (this.situation === SITUATION_LOSE_WIN_WIN_RECENT) {
+        this.resultStack.splice(-3);
+        this.assembleSpliced = true;
+        return;
+      }
+    },
+    setPlusBet: function () {
+      // if (this.situation === SITUATION_LOSE_WIN_WIN_RECENT) {
+      //   this.plusBet = this.plusBet > 3 ? this.plusBet - 1 : 2;
+      // }
+      // if (this.turnInTerm % 5 === 0) {
+      //   this.plusBet = this.plusBet < 4 ? this.plusBet + 1 : 5;
+      // }
+      let plusBet;
+      if (this.assembleSpliced) {
+        plusBet = Math.floor((this.resultStack.slice(-1)[0].bet - 1) / 5) + 1;
+      } else {
+        plusBet = Math.floor((this.nextBet - 1) / 5) + 1;
+      }
+      this.plusBet = plusBet < 5 ? plusBet : 5;
     },
     setNextBet: function () {
       this.nextBet = this.d_nextBet;
@@ -189,13 +204,6 @@ var app = new Vue({
         }
       }
     },
-    // 合計損益額にまとめあげる
-    totalize: function () {
-      if (this.situation === SITUATION_FIRST) {
-        this.total += this.loss;
-        this.loss = 0;
-      }
-    },
     readyNextTurn: function () {
       this.totalize();
       if (this.loss >= 0) {
@@ -204,22 +212,12 @@ var app = new Vue({
       }
       this.ready(this.nextBet);
     },
-    setPlusBet: function () {
-      // if (this.situation === SITUATION_LOSE_WIN_WIN_RECENT) {
-      //   this.plusBet = this.plusBet > 3 ? this.plusBet - 1 : 2;
-      // }
-      // if (this.turnInTerm % 5 === 0) {
-      //   this.plusBet = this.plusBet < 4 ? this.plusBet + 1 : 5;
-      // }
-      console.log(this.nextBet);
-      console.log(this.assembleSpliced);
-      let plusBet;
-      if (this.assembleSpliced) {
-        plusBet = Math.floor((this.resultStack.slice(-1)[0].bet - 1) / 5) + 1;
-      } else {
-        plusBet = Math.floor((this.nextBet - 1) / 5) + 1;
+    // 合計損益額にまとめあげる
+    totalize: function () {
+      if (this.situation === SITUATION_FIRST) {
+        this.total += this.loss;
+        this.loss = 0;
       }
-      this.plusBet = plusBet < 5 ? plusBet : 5;
     },
   },
 });
