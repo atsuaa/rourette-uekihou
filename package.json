@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/atsuaa/rourette-uekihou#readme",
   "devDependencies": {
+    "html-webpack-plugin": "^5.5.0",
     "webpack": "^5.69.1",
     "webpack-cli": "^4.9.2"
   }
