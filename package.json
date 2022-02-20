@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/atsuaa/rourette-uekihou/issues"
   },
-  "homepage": "https://github.com/atsuaa/rourette-uekihou#readme"
+  "homepage": "https://github.com/atsuaa/rourette-uekihou#readme",
+  "devDependencies": {
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2"
+  }
 }
