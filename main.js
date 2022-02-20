@@ -44,7 +44,7 @@ var app = new Vue({
       if (this.d_situation === SITUATION_LOSE_RECENT) {
         return countUpLogic.plusX(
           this.resultStack.slice(-1)[0].bet,
-          this.plusBet
+          this.getPlusBet(this.resultStack.slice(-1)[0].bet)
         );
       }
       // 直近負け勝ち
@@ -52,6 +52,15 @@ var app = new Vue({
         return this.resultStack.slice(-2, -1)[0].bet + 1;
       }
       throw "no nextBet err";
+    },
+    recentLoseBet: function () {
+      for (let i = 1; i < this.resultStack.length; i++) {
+        let resultSet = this.resultStack.slice(-i)[0];
+        if (resultSet === LOSE) {
+          return resultSet.bet;
+        }
+      }
+      throw "no lose result";
     },
     d_situation: function () {
       // １回目・結果が相殺されて空
@@ -97,6 +106,9 @@ var app = new Vue({
     ready: function (bet = 0) {
       this.turn++;
       this.turnInTerm++;
+      if (this.nextBet === null) {
+        this.nextBet = this.initialBet + this.getPlusBet();
+      }
       this.bet = bet;
       this.assembleSpliced = false;
     },
@@ -111,7 +123,7 @@ var app = new Vue({
       this.countOffsetBenefitInTerm();
       this.countLoss();
       this.assembleResultSet();
-      this.setPlusBet();
+      this.reduceStackWithBenefit();
       this.setNextBet();
       this.changeSituation();
 
@@ -163,20 +175,36 @@ var app = new Vue({
         return;
       }
     },
-    setPlusBet: function () {
-      // if (this.situation === SITUATION_LOSE_WIN_WIN_RECENT) {
-      //   this.plusBet = this.plusBet > 3 ? this.plusBet - 1 : 2;
-      // }
-      // if (this.turnInTerm % 5 === 0) {
-      //   this.plusBet = this.plusBet < 4 ? this.plusBet + 1 : 5;
-      // }
-      let plusBet;
-      if (this.assembleSpliced) {
-        plusBet = Math.floor((this.resultStack.slice(-1)[0].bet - 1) / 5) + 1;
-      } else {
-        plusBet = Math.floor((this.nextBet - 1) / 5) + 1;
+    reduceStackWithBenefit: function () {
+      if (!this.assembleSpliced) {
+        return;
       }
-      this.plusBet = plusBet < 5 ? plusBet : 5;
+      let target;
+      let i;
+      if (this.resultStack.slice(-1)[0].result === LOSE) {
+        i = -1;
+        target = Math.abs(this.resultStack.slice(i)[0].plusMinus);
+      } else {
+        i = -2;
+        target = Math.abs(this.resultStack.slice(i)[0].plusMinus);
+      }
+      if (target <= this.offsetBenefitInTerm) {
+        this.resultStack.splice(i);
+        this.offsetBenefitInTerm -= target;
+      }
+    },
+    getPlusBet: function (bet = 0) {
+      if (bet === 0) {
+        this.plusBet;
+        return 2;
+      }
+      let plusBet = Math.floor((bet - 1) / 5) + 1;
+      if (plusBet < 2) {
+        plusBet = 2;
+      }
+      plusBet = plusBet < 5 ? plusBet : 5;
+      this.plusBet = plusBet;
+      return plusBet;
     },
     setNextBet: function () {
       this.nextBet = this.d_nextBet;
@@ -217,6 +245,7 @@ var app = new Vue({
       if (this.situation === SITUATION_FIRST) {
         this.total += this.loss;
         this.loss = 0;
+        this.offsetBenefitInTerm = 0;
       }
     },
   },
